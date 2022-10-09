@@ -120,16 +120,17 @@ export default class SudokuSolver {
     headerNode: Node;
     rows: Node[] = new Array<Node>(ROW_N);
     solution: Node[] = new Array<Node>(SIZE_SQUARED);
-    //original_values: Node[] = [];
 
     constructor() {
         this.headerNode = new Node();
         this.headerNode.size = -1;
 
+        let temp = this.headerNode;
         // Create the column nodes for each column
         for (let i = 0; i < COL_N; i++) {
             const newCol = new Node();
-            this.headerNode.insertRight(newCol);
+            temp.insertRight(newCol);
+            temp = newCol;
         }
 
         // Create sparse boolean matrix with rules found here:
@@ -160,7 +161,7 @@ export default class SudokuSolver {
             }
 
             for (let x = 0; x < COL_N; x++, col = col.right) {
-                if (matrix[y][x]) {
+                if (matrix[y][x] === true) {
                     const newNode = new Node(col, { x: id.x, y: id.y, entry: id.entry });
                     if (prev === null) {
                         
@@ -186,7 +187,6 @@ export default class SudokuSolver {
                 if(puzzle[y][x] > 0) {
                     const num = (y * 9 + x) * 9 + puzzle[y][x]-1;
                     const row = this.rows[num];
-                    //this.original_values.push(row);
 
                     this.cover(row.column!);
                     for(let right = row.right; right !== row; right = right.right)
@@ -196,18 +196,19 @@ export default class SudokuSolver {
         }
     }
 
-    // printGridColumns() {
-    //     let ind = 1;
-    //     for(let col = this.headerNode.right; col !== this.headerNode; col = col.right) {
-    //         let str = ind++ + ": ";
-    //         for(let down = col.down; down !== col; down = down.down) {
-    //             str += down.id!.y + "/" + down.id!.x + "/" + down.id!.entry + "  ";
-    //         }
-    //         console.log(str);
-    //     }
-    // }
-
     solve(puzzle: number[][], preserveOriginal: boolean = false) {
+        puzzle = [
+            [9,0,0,0,0,1,0,0,0],
+            [0,0,0,0,0,0,0,5,0],
+            [0,0,7,0,4,0,8,0,6],
+            [0,0,5,0,0,0,0,4,0],
+            [7,0,0,9,0,0,5,0,3],
+            [0,0,0,0,3,0,0,2,0],
+            [0,0,0,0,0,0,0,0,2],
+            [0,6,0,4,0,0,0,0,0],
+            [0,0,8,0,6,0,3,0,7]
+        ];
+        
         this.puzzleToGrid(puzzle);
         
         if(this.search()) {
@@ -222,13 +223,15 @@ export default class SudokuSolver {
                 puzzle[y][x] = entry;
             })
 
+            console.log(puzzle);
+
             return puzzle;
         }
         return null;
     }
 
     search(k: number = 0) {
-        if (k > 65) {
+        if (k > 1000) {
             return false;
         }
 
@@ -248,13 +251,13 @@ export default class SudokuSolver {
             for (let right = row.right; right !== row; right = right.right)
                 this.cover(right.column!);
 
-            if (this.search(k + 1))
+            if(this.search(k + 1))
                 return true;
 
             row = this.solution[k];
             this.solution.pop();
+            
             col = row.column!;
-
             for (let left = row.left; left !== row; left = left.left)
                 this.uncover(left.column!);
         }

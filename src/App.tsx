@@ -30,51 +30,50 @@ function App() {
 
         const context = canvas!.getContext("2d");
         if(context) {
-          processor.processFrame().then(() => {
-            context.drawImage(processor.video, 0, 0);
+          context.drawImage(processor.video, 0, 0);
 
-            if (processor.gridCorners) {
+          if (processor.gridCorners) {
+            const {
+              topLeft,
+              topRight,
+              bottomLeft,
+              bottomRight,
+            } = processor.gridCorners;
+  
+            context.strokeStyle = "rgba(180,65,65,0.5)";
+            context.fillStyle = "rgba(0,0,0,0)";
+            context.lineWidth = 5;
+            context.beginPath();
+            context.moveTo(topLeft.x, topLeft.y);
+            context.lineTo(topRight.x, topRight.y);
+            context.lineTo(bottomRight.x, bottomRight.y);
+            context.lineTo(bottomLeft.x, bottomLeft.y);
+            context.closePath();
+            context.stroke();
+            context.fill();
+          }
+
+          if (processor.solvedBoxes) {
+            context.fillStyle = "rgba(180,65,65,1)";
+            processor.solvedBoxes.forEach((box) => {
               const {
-                topLeft,
-                topRight,
-                bottomLeft,
-                bottomRight,
-              } = processor.gridCorners;
-    
-              context.strokeStyle = "rgba(180,65,65,0.5)";
-              context.fillStyle = "rgba(0,0,0,0)";
-              context.lineWidth = 5;
-              context.beginPath();
-              context.moveTo(topLeft.x, topLeft.y);
-              context.lineTo(topRight.x, topRight.y);
-              context.lineTo(bottomRight.x, bottomRight.y);
-              context.lineTo(bottomLeft.x, bottomLeft.y);
-              context.closePath();
-              context.stroke();
-              context.fill();
+                digit,
+                digitHeight,
+                digitRotation,
+                position,
+              } = box;
+                context.font = `bold ${digitHeight}px sans-serif`;
+                context.translate(position.x, position.y);
+                context.rotate(Math.PI - digitRotation);
+                context.fillText(
+                  digit.toString(),
+                  -digitHeight / 4,
+                  digitHeight / 3
+                );
+                context.setTransform();
+              })  
             }
-
-            if (processor.solvedBoxes) {
-              context.fillStyle = "rgba(180,65,65,1)";
-              processor.solvedBoxes.forEach((box) => {
-                const {
-                  digit,
-                  digitHeight,
-                  digitRotation,
-                  position,
-                } = box;
-                  context.font = `bold ${digitHeight}px sans-serif`;
-                  context.translate(position.x, position.y);
-                  context.rotate(Math.PI - digitRotation);
-                  context.fillText(
-                    digit.toString(),
-                    -digitHeight / 4,
-                    digitHeight / 3
-                  );
-                  context.setTransform();
-                })  
-              }
-          })
+         
         }
       }
 
