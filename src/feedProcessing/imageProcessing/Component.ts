@@ -55,11 +55,12 @@ export default class ConnectedComponent {
     }
 
     findCorners() {
-        let corners = {topLeft: {x: this.minX, y: this.minY}, 
-                        topRight: {x: this.maxX, y: this.minY}, 
-                        bottomLeft: {x: this.minX, y: this.maxY}, 
-                        bottomRight: {x: this.maxX, y: this.maxY}};
+        let corners = {topLeft: {x: this.minX, y: this.maxY}, 
+                        topRight: {x: this.maxX, y: this.maxY}, 
+                        bottomLeft: {x: this.minX, y: this.minY}, 
+                        bottomRight: {x: this.maxX, y: this.minY}};
 
+        // tl = top left, br = bottom right etc.
         let minTl = Number.MAX_SAFE_INTEGER;
         let minTr = Number.MAX_SAFE_INTEGER;
         let minBl = Number.MAX_SAFE_INTEGER;

@@ -32,6 +32,9 @@ function App() {
         if(context) {
           context.drawImage(processor.video, 0, 0);
 
+          // For testing
+          //context.putImageData(processor.imageData, 0, 0);
+
           if (processor.gridCorners) {
             const {
               topLeft,

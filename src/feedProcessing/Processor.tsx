@@ -2,7 +2,7 @@ import EventEmitter from "events";
 
 import { Corners, Point } from "./imageProcessing/Component";
 import frameToImage from "./imageProcessing/frameToImage";
-//import adaptiveThresholdOtsu from "./adaptiveThresholdOtsu";
+//import adaptiveThresholdOtsu from "./imageProcessing/adaptiveThresholdOtsu";
 import adaptiveThresholdBradley from "./imageProcessing/adaptiveThresholdBradley";
 import findLargestConnectedComponent from "./imageProcessing/findLargestConnectedComponent";
 import findHomographicTransform, { Transform, transformPoint } from "./imageProcessing/findHomographicTransform";
@@ -21,14 +21,14 @@ type SolvedBox = {
 }
 
 export default class Processor{
-  video!: HTMLVideoElement;
+  video: HTMLVideoElement;
   videoRunning: boolean = false;
   videoProcessing: boolean = false;
 
   gridCorners: Corners | null = null;
   solvedBoxes: SolvedBox[] | null = null;
   solution: number[][] | null = null;
-
+  
   events = new EventEmitter();
 
   // Stream video from camera to the <video/> element
@@ -113,6 +113,12 @@ export default class Processor{
       // Find the corners of found component
       this.gridCorners = component.findCorners();
 
+      // Outline the square in which the grid was found in video space (for testing)
+      // this.gridCorners = {topLeft: {x: component.minX, y: component.maxY}, 
+      //                     topRight: {x: component.maxX, y: component.maxY}, 
+      //                     bottomLeft: {x: component.minX, y: component.minY}, 
+      //                     bottomRight: {x: component.maxX, y: component.minY}}
+
       // Find the transformation matrix using the corners as reference
       const transform = findHomographicTransform(PROCESSING_SIZE, this.gridCorners);
 
@@ -156,6 +162,6 @@ export default class Processor{
       }
     
     this.videoProcessing = false;
-    setTimeout(() => this.processFrame(), 200);
+    setTimeout(async () => await this.processFrame(), 100);
   }
 }

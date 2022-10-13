@@ -20,13 +20,15 @@ class Node {
     id: ID | null;
     size: number;
 
-    constructor(column?: Node, id?: ID) {
+    constructor(column: Node = null, id: ID = null) {
         this.left = this;
         this.right = this;
         this.up = this;
         this.down = this;
-        this.column = column ?? null;
-        this.id = id ?? null;
+
+        this.column = column;
+        this.id = id;
+        
         this.size = 0;
     }
 
@@ -117,6 +119,7 @@ function createSparseMatrix(): boolean[][] {
 }
 
 export default class SudokuSolver {
+    isSolved: boolean = false;
     headerNode: Node;
     rows: Node[] = new Array<Node>(ROW_N);
     solution: Node[] = new Array<Node>(SIZE_SQUARED);
@@ -163,17 +166,15 @@ export default class SudokuSolver {
             for (let x = 0; x < COL_N; x++, col = col.right) {
                 if (matrix[y][x] === true) {
                     const newNode = new Node(col, { x: id.x, y: id.y, entry: id.entry });
-                    if (prev === null) {
-                        
-                        prev = newNode;
-                        const num = (id.y * 9 + id.x) * 9 + id.entry-1;
-                        this.rows[num] = newNode;
-                    }
+
+                    col.insertUp(newNode);
+                    col.size++;
+
+                    if (prev === null)
+                        this.rows[(id.y * 9 + id.x) * 9 + id.entry-1] = newNode; // Index: (9y+x) * 9 + entry
                     else
                         prev.insertRight(newNode);
 
-                    col.insertDown(newNode);
-                    col.size++;
 
                     prev = newNode;
                 }
@@ -188,78 +189,42 @@ export default class SudokuSolver {
                     const num = (y * 9 + x) * 9 + puzzle[y][x]-1;
                     const row = this.rows[num];
 
-                    this.cover(row.column!);
+                    this.cover(row.column);
                     for(let right = row.right; right !== row; right = right.right)
-                        this.cover(right.column!)
+                        this.cover(right.column)
                 }
             }
         }
     }
 
-    solve(puzzle: number[][], preserveOriginal: boolean = false) {
-        puzzle = [
-            [9,0,0,0,0,1,0,0,0],
-            [0,0,0,0,0,0,0,5,0],
-            [0,0,7,0,4,0,8,0,6],
-            [0,0,5,0,0,0,0,4,0],
-            [7,0,0,9,0,0,5,0,3],
-            [0,0,0,0,3,0,0,2,0],
-            [0,0,0,0,0,0,0,0,2],
-            [0,6,0,4,0,0,0,0,0],
-            [0,0,8,0,6,0,3,0,7]
-        ];
-        
-        this.puzzleToGrid(puzzle);
-        
-        if(this.search()) {
-            if(!preserveOriginal) {
-                puzzle = new Array(9);
-                for(let i = 0; i < 9; i++)
-                    puzzle[i] = new Array(9);
-            }
-            
-            this.solution.forEach((val) => {
-                const {entry, x, y} = val.id!;
-                puzzle[y][x] = entry;
-            })
-
-            console.log(puzzle);
-
-            return puzzle;
-        }
-        return null;
-    }
-
-    search(k: number = 0) {
-        if (k > 1000) {
-            return false;
-        }
-
-        if (this.headerNode.right === this.headerNode)
+    search(k: number) {
+        if (this.headerNode.right === this.headerNode) {
             return true;
+        }
+
+        if(k > 100)
+            return false;
 
         let col = this.headerNode.right;
-        for (let temp = col.right; temp !== this.headerNode; temp = temp.right)
-            if (temp.size < col.size)
-                col = temp;
+        for (let right = col.right; right !== this.headerNode; right = right.right)
+            if (right.size < col.size)
+                col = right;
 
         this.cover(col);
 
         for (let row = col.down; row !== col; row = row.down) {
-            this.solution[k] = row;
+            this.solution.push(row);
 
             for (let right = row.right; right !== row; right = right.right)
-                this.cover(right.column!);
+                this.cover(right.column);
 
-            if(this.search(k + 1))
+            if(this.search(k+1))
                 return true;
 
-            row = this.solution[k];
-            this.solution.pop();
-            
-            col = row.column!;
             for (let left = row.left; left !== row; left = left.left)
-                this.uncover(left.column!);
+                this.uncover(left.column);
+
+            this.solution.pop();
         }
 
         this.uncover(col);
@@ -274,7 +239,7 @@ export default class SudokuSolver {
             for (let right = row.right; right !== row; right = right.right) {
                 right.down.up = right.up;
                 right.up.down = right.down;
-                right.column!.size--;
+                right.column.size--;
             }
         }
     }
@@ -282,13 +247,33 @@ export default class SudokuSolver {
     uncover(col: Node) {
         for (let row = col.up; row !== col; row = row.up) {
             for (let left = row.left; left !== row; left = left.left) {
-                left.down.up = left.up;
-                left.up.down = left.down;
-                left.column!.size++;
+                left.down.up = left;
+                left.up.down = left;
+                left.column.size++;
             }
         }
 
         col.right.left = col;
         col.left.right = col;
+    }
+
+    solve(puzzle: number[][], preserveOriginal: boolean = false) {
+        this.puzzleToGrid(puzzle);
+
+        if(this.search(0)) {
+            if(!preserveOriginal) {
+                puzzle = new Array(9);
+                for(let i = 0; i < 9; i++)
+                    puzzle[i] = new Array(9);
+            }
+            
+            this.solution.forEach((val) => {
+                const {entry, x, y} = val.id!;
+                puzzle[y][x] = entry;
+            })
+
+            return puzzle;
+        }
+        return null;
     }
 }
