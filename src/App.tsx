@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useState } from 'react';
-import './App.css';
+import React, { useRef, useEffect, useState } from "react";
+import "./App.css";
 import Processor from "./feedProcessing/Processor";
 
 const processor = new Processor();
@@ -14,35 +14,30 @@ function App() {
   // Runs on video update
   useEffect(() => {
     const video = videoRef.current;
-    if(video) {
+    if (video) {
       processor.streamToVideo(video).then(
         () => console.log("Streaming video"),
-        (error) => alert(error.message)
+        (error) => alert(error.message),
       );
     }
   }, [videoRef]);
-  
+
   // Runs on canvas update
   useEffect(() => {
     const interval = window.setInterval(() => {
       const canvas = canvasRef.current;
-      if(canvas && processor.videoRunning) {
-
+      if (canvas && processor.videoRunning) {
         const context = canvas!.getContext("2d");
-        if(context) {
+        if (context) {
           context.drawImage(processor.video, 0, 0);
 
           // For testing
           //context.putImageData(processor.imageData, 0, 0);
 
           if (processor.gridCorners) {
-            const {
-              topLeft,
-              topRight,
-              bottomLeft,
-              bottomRight,
-            } = processor.gridCorners;
-  
+            const { topLeft, topRight, bottomLeft, bottomRight } =
+              processor.gridCorners;
+
             context.strokeStyle = "rgba(180,65,65,0.5)";
             context.fillStyle = "rgba(0,0,0,0)";
             context.lineWidth = 5;
@@ -59,31 +54,24 @@ function App() {
           if (processor.solvedBoxes) {
             context.fillStyle = "rgba(180,65,65,1)";
             processor.solvedBoxes.forEach((box) => {
-              const {
-                digit,
-                digitHeight,
-                digitRotation,
-                position,
-              } = box;
-                context.font = `bold ${digitHeight}px sans-serif`;
-                context.translate(position.x, position.y);
-                context.rotate(Math.PI - digitRotation);
-                context.fillText(
-                  digit.toString(),
-                  -digitHeight / 4,
-                  digitHeight / 3
-                );
-                context.setTransform();
-              })  
-            }
-         
+              const { digit, digitHeight, digitRotation, position } = box;
+              context.font = `bold ${digitHeight}px sans-serif`;
+              context.translate(position.x, position.y);
+              context.rotate(Math.PI - digitRotation);
+              context.fillText(
+                digit.toString(),
+                -digitHeight / 4,
+                digitHeight / 3,
+              );
+              context.setTransform();
+            });
+          }
         }
       }
-
-    }, 100)
+    }, 100);
     return () => {
       window.clearInterval(interval);
-    }
+    };
   }, [canvasRef]);
 
   useEffect(() => {
@@ -99,11 +87,15 @@ function App() {
 
   return (
     <div className="App">
-      <video ref={videoRef} muted playsInline className="videoElement"/>
-      <canvas ref={canvasRef} width={videoWidth} height={videoHeight} className="canvasElement"/>
+      <video ref={videoRef} muted playsInline className="videoElement" />
+      <canvas
+        ref={canvasRef}
+        width={videoWidth}
+        height={videoHeight}
+        className="canvasElement"
+      />
     </div>
   );
 }
-
 
 export default App;
