@@ -162,10 +162,13 @@ export default class Processor {
 
         // Solve the sudoku puzzle
         const solver = new SudokuSolver();
-        this.solution = solver.solve(puzzle);
-
-        // Transform the solution to the video
-        this.transformPuzzle(transform);
+        try {
+          this.solution = solver.solve(puzzle);
+          // Transform the solution to video
+          this.transformPuzzle(transform);
+        } catch (error) {
+          this.solution = null;
+        }
       }
     } else {
       // If no component found

@@ -196,7 +196,7 @@ export default class SudokuSolver {
       return true;
     }
 
-    if (k > 100) return false;
+    if (k > 100) throw new Error("Too deep");
 
     let col = this.headerNode.right;
     for (let right = col.right; right !== this.headerNode; right = right.right)
@@ -254,7 +254,7 @@ export default class SudokuSolver {
     if (this.search(0)) {
       if (!preserveOriginal) {
         puzzle = new Array(9);
-        for (let i = 0; i < 9; i++) puzzle[i] = new Array(9).fill(0);
+        for (let i = 0; i < 9; i++) puzzle[i] = new Array(9);
       }
 
       this.solution.forEach((val) => {
