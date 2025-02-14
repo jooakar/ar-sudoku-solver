@@ -1,46 +1,31 @@
-# Getting Started with Create React App
+# AR Sudoku solver
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Renders sudoku solutions on your camera feed in real time inside a browser window.
 
-## Available Scripts
+![demo gif](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExcnh1ZDEyYWEzOWF6Z2t1ZmFyandmZ3pmYmZxaG9nN2s1dDJkbXpmZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/golF0SDsBUGNQaqL9D/giphy.gif)
 
-In the project directory, you can run:
+Everything regarding image processing, solving the sudoku and rendering the solution are made by hand. The only major library used is [mathjs](https://mathjs.org/) for matrix calculations and trigonometric operations.
 
-### `npm start`
+## Usage
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```
+npm run start
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+This runs the app in development mode. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-### `npm test`
+## Build
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+npm run build
+```
 
-### `npm run build`
+Builds an optimized version in the `build/` directory
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Neural network
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Trained to recognize single digits 1-9 using TensorFlow in Python. The final model can be found in `public/tfjs_model/` and works out of the box without any extra steps. See [this repo](https://github.com/jooakar/digit_recognition_ai) for steps on how to reproduce the model.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Acknowledgements
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+The general project structure and methodologies were heavily inspired by this [amazing video](https://www.youtube.com/watch?v=cOC-ad0BsY0) by @atomic14, but all methods were researched and re-implemented in this project.
