@@ -63,39 +63,40 @@ export default class Processor {
 
   transformPuzzle(transform: Transform) {
     const boxSize = PROCESSING_SIZE / 9;
+    this.solvedBoxes = new Array<SolvedBox>();
+    if (!this.solution) {
+      return;
+    }
 
-    if (this.solution) {
-      this.solvedBoxes = new Array<SolvedBox>();
-      this.solution.forEach((row, y) => {
-        row.forEach((digit, x) => {
-          const p1 = transformPoint(
-            { x: (x + 0.5) * boxSize, y: y * boxSize },
-            transform,
-          );
-          const p2 = transformPoint(
-            { x: (x + 0.5) * boxSize, y: (y + 1) * boxSize },
-            transform,
-          );
-          // Center of the box
-          const position = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+    this.solution.forEach((row, y) => {
+      row.forEach((digit, x) => {
+        const p1 = transformPoint(
+          { x: (x + 0.5) * boxSize, y: y * boxSize },
+          transform,
+        );
+        const p2 = transformPoint(
+          { x: (x + 0.5) * boxSize, y: (y + 1) * boxSize },
+          transform,
+        );
+        // Center of the box
+        const position = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
 
-          // Calculate transformed angle in the box
-          const dx = p1.x - p2.x;
-          const dy = p1.y - p2.y;
-          const digitRotation = Math.atan2(dx, dy);
+        // Calculate transformed angle in the box
+        const dx = p1.x - p2.x;
+        const dy = p1.y - p2.y;
+        const digitRotation = Math.atan2(dx, dy);
 
-          // Calculate height of the number in the box
-          const digitHeight = 0.8 * Math.sqrt(dx * dx + dy * dy);
+        // Calculate height of the number in the box
+        const digitHeight = 0.8 * Math.sqrt(dx * dx + dy * dy);
 
-          this.solvedBoxes!.push({
-            digit,
-            digitHeight,
-            digitRotation,
-            position,
-          });
+        this.solvedBoxes!.push({
+          digit,
+          digitHeight,
+          digitRotation,
+          position,
         });
       });
-    }
+    });
   }
 
   async processFrame() {
@@ -117,12 +118,6 @@ export default class Processor {
     if (component) {
       // Find the corners of found component
       this.gridCorners = component.findCorners();
-
-      // Outline the square in which the grid was found in video space (for testing)
-      // this.gridCorners = {topLeft: {x: component.minX, y: component.maxY},
-      //                     topRight: {x: component.maxX, y: component.maxY},
-      //                     bottomLeft: {x: component.minX, y: component.minY},
-      //                     bottomRight: {x: component.maxX, y: component.minY}}
 
       // Find the transformation matrix using the corners as reference
       const transform = findHomographicTransform(
